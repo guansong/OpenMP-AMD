@@ -10,5 +10,7 @@
 
   <project name="RadeonOpenCompute/coral-clang.git" path="llvm/tools/clang"/>
 
+  <project name="RadeonOpenCompute/coral-omprt.git" path="llvm/projects/openmp"/>
+
 </manifest>
 
