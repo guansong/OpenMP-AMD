@@ -15,7 +15,11 @@ configure and build
 setting up
 
   export PATH=`pwd`/bin:$PATH
+  
   export C_INCLUDE_PATH=`pwd`/projects/openmp/runtime/src:$C_INCLUDE_PATH
+  
   export CPLUS_INCLUDE_PATH=`pwd`/projects/openmp/runtime/src:$CPLUS_INCLUDE_PATH
+  
   export LIBRARY_PATH=`pwd`/lib:$LIBRARY_PATH
+  
   export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
