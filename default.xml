@@ -2,18 +2,13 @@
 <manifest>
   <!-- See http://llvm.org/docs/GettingStarted.html#git-mirror -->
 
-  <remote name="llvm" alias="origin" fetch="http://llvm.org/git/" />
+  <remote name="llvm" alias="origin" fetch="ssh://git@github.com/" />
 
-  <default remote="llvm" revision="master" sync-j="4"/>
+  <default remote="llvm" revision="dev" sync-j="4"/>
 
-  <project name="llvm"/>
+  <project name="RadeonOpenCompute/coral-llvm.git" path="llvm"/>
 
-  <project name="clang" path="llvm/tools/clang"/>
+  <project name="RadeonOpenCompute/coral-clang.git" path="llvm/tools/clang"/>
 
 </manifest>
-
-
-
-
-
 
