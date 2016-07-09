@@ -2,20 +2,28 @@
 
 A repo manifest
 
-This is to build LLVM/clang OpenMP on AMD system for Linux
+This includes the source code to build a prototype supporting OpenMP in LLVM/Clang on an AMD Linux system.
 
-Suppose you have a github account, you can do
+Supposing you have a github account, on an AMD ROCM platform, you can do
 
 mkdir workspace; cd workspace; repo init -u git@github.com:guansong/OpenMP-AMD.git; repo sync
 
 to get the whole project source in the workspace directory
 
-configure and build
+mkdir build; cd build; cmake ...
 
-setting up
+Configure and build the clang as you usually do, it will include the OpenMP runtime. 
+
+After building everything, you can set up the envrionment
 
   export PATH=`pwd`/bin:$PATH
   export C_INCLUDE_PATH=`pwd`/projects/openmp/runtime/src:$C_INCLUDE_PATH
   export CPLUS_INCLUDE_PATH=`pwd`/projects/openmp/runtime/src:$CPLUS_INCLUDE_PATH
   export LIBRARY_PATH=`pwd`/lib:$LIBRARY_PATH
   export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+
+Go back to the workspace dir,
+
+  cp the example
+
+
