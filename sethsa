@@ -1,0 +1,202 @@
+#!/bin/bash
+
+Usage()
+{   
+cat << EOF
+Expect hsa in current dir ...
+EOF
+}   
+
+Clean()
+{
+  :
+}
+
+Abort()
+{
+  Clean; exit 10
+}
+
+#this need to be sourced you can not trap the current shell sginal 
+#trap Abort 2 3 9 15
+
+gtre() {
+  echo "_________________________________________________________________________________"
+  echo
+  echo "                     HSAHOME=$HSAHOME" 
+  echo
+  if [ ! -z "$HSAHOME" ]
+  then
+#  echo "               HSA_LLVM_PATH="`echo $HSA_LLVM_PATH | cut -d : -f 1`
+  echo "                HSA_CLC_PATH="`echo $HSA_CLC_PATH | cut -d : -f 1`
+  echo "                HSA_HLC_PATH="`echo $HSA_HLC_PATH | cut -d : -f 1`
+  echo "              HSA_TOOLS_PATH="`echo $HSA_TOOLS_PATH | cut -d : -f 1`
+  echo "            HSA_BUILTIN_PATH="`echo $HSA_BUILTIN_PATH | cut -d : -f 1`
+#  echo "          HSA_BUILD_INC_PATH="`echo $HSA_BUILD_INC_PATH`
+  echo
+  echo "            HSA_RUNTIME_PATH="`echo $HSA_RUNTIME_PATH | cut -d : -f 1`
+  echo "           ROCR_RUNTIME_PATH="`echo $ROCR_RUNTIME_PATH | cut -d : -f 1`
+#  echo "                HSA_KMT_PATH="`echo $HSA_KMT_PATH | cut -d : -f 1`
+  echo
+  echo "                LIBRARY_PATH="`echo $LIBRARY_PATH | cut -d : -f 1,2,3`
+  echo "        BITCODE_LIBRARY_PATH="`echo $BITCODE_LIBRARY_PATH | cut -d : -f 1,2,3`
+  echo
+  echo "             LD_LIBRARY_PATH="`echo $LD_LIBRARY_PATH | cut -d : -f 1,2,3`
+  fi
+  echo
+  echo "_________________________________________________________________________________"
+  echo
+}
+
+stre() {
+  if [ ! -d ./ ]
+  then
+    Usage 
+    #this need to be sourced you can not exit 
+    #exit 1
+  else 
+    if [ ! -z "${_platform}" ]
+    then
+      case ${_platform} in
+        *86_64*inux*)
+          export HSAHOME=`pwd`
+
+          # cloc tools
+          if [ -x ./CLOC/cloc ]
+          then
+            export PATH=`pwd`/CLOC:$PATH
+            export HSA_CLC_PATH=`pwd`/CLOC
+          fi
+          if [ -x ./CLOC/bin/cloc ]
+          then
+            export PATH=`pwd`/CLOC/bin:$PATH
+            export HSA_CLC_PATH=`pwd`/CLOC/bin
+          fi
+          if [ -x ./CLOC/bin/cloc.sh ]
+          then
+            export PATH=`pwd`/CLOC/bin:$PATH
+            export HSA_CLC_PATH=`pwd`/CLOC/bin
+          fi
+
+
+          # hsail backend
+          if [ -d ./HLC/ebuild/bin ]
+          then
+            export HSA_HLC_PATH=`pwd`/HLC/ebuild/bin
+          else
+            if [ -d /opt/rocm/hcc-hsail/hlc/bin ]; then
+              export HSA_HLC_PATH=/opt/rocm/hcc-hsail/hlc/bin
+            fi
+          fi
+
+          # hsail tools 
+          if [ -d ./HT/ebuild/HSAILAsm ]
+          then
+            export HSA_TOOLS_PATH=`pwd`/HT/ebuild/HSAILAsm
+          else
+            if [ -d /opt/rocm/hcc-hsail/HSAILasm ]; then
+              export HSA_TOOLS_PATH=/opt/rocm/hcc-hsail/HSAILasm
+            fi
+          fi
+
+          # hsail builtin
+          if [ -d ./builtin ]
+          then
+            export HSA_BUILTIN_PATH=`pwd`/builtin
+            export BITCODE_LIBRARY_PATH=`pwd`/builtin:$BITCODE_LIBRARY_PATH
+          else
+            export HSA_BUILTIN_PATH=/opt/rocm/hcc-lc/lib
+            export BITCODE_LIBRARY_PATH=/opt/rocm/hcc-lc/lib:$BITCODE_LIBRARY_PATH
+          fi
+
+
+          # hsail runtime
+          if [ -x ./HSAIL-Runtime/lib/x86_64 ]
+          then
+            export HSA_RUNTIME_PATH=`pwd`/HSAIL-Runtime
+            export LIBRARY_PATH=$HSA_RUNTIME_PATH/lib/x86_64:$LIBRARY_PATH
+            export LD_LIBRARY_PATH=$HSA_RUNTIME_PATH/lib/x86_64:$LD_LIBRARY_PATH
+          elif [ -x ./HSAIL-Runtime/lib ]
+          then
+            export HSA_RUNTIME_PATH=`pwd`/HSAIL-Runtime
+            export LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LIBRARY_PATH
+            export LD_LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LD_LIBRARY_PATH
+          else
+            export HSA_RUNTIME_PATH=/opt/rocm
+            export LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LIBRARY_PATH
+            export LD_LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LD_LIBRARY_PATH
+          fi
+
+          # ROCR debug runtime
+          if [ -x ./ROCR-Runtime/build/core/libhsa-runtime64.so ]
+          then
+            export ROCR_RUNTIME_PATH=`pwd`/ROCR-Runtime
+            export LD_LIBRARY_PATH=$ROCR_RUNTIME_PATH/build/core/:$LD_LIBRARY_PATH
+          fi
+
+
+          # hsail kernel
+          if [ 0 ]
+          then
+          if [ -d ./HSA-Drivers-Linux-AMD ]
+          then
+            HSA_KMT=`ls -dt HSA-Drivers-Linux-AMD/kfd-* | tail -n 1`
+            if [ -x $HSA_KMT/libhsakmt ]
+            then
+              export HSA_KMT_PATH=`pwd`/$HSA_KMT/libhsakmt
+              export LIBRARY_PATH=$HSA_KMT_PATH/lnx64a:$LIBRARY_PATH
+              export LD_LIBRARY_PATH=$HSA_KMT_PATH/lnx64a:$LD_LIBRARY_PATH
+            elif [ -f $HSA_RUNTIME_PATH/lib/libhsakmt.so ]
+            then
+              export HSA_KMT_PATH=$HSA_RUNTIME_PATH/lib
+              export LIBRARY_PATH=$HSA_KMT_PATH:$LIBRARY_PATH
+              export LD_LIBRARY_PATH=$HSA_KMT_PATH:$LD_LIBRARY_PATH
+            fi
+            if [ -d ./HSA-Drivers-Linux-AMD/src/libhsakmt/include ]
+            then
+              : #export HSA_BUILD_INC_PATH=`pwd`/HSA-Drivers-Linux-AMD/src/libhsakmt/include
+            fi
+          fi
+          fi
+
+          ;;
+        *)
+          #default to ?
+          echo $_platform not supported
+          ;;
+      esac
+    else
+      echo "ENV var _platform has to be set from config.guess."
+      echo "for example: export _platform=\`./config.guess\`"
+    fi
+  fi
+}
+
+Target=$1
+
+################################################################################
+# Depending if the setting can be applied to the current shell ...
+################################################################################
+
+if [[ ! -z "${BASH_VERSINFO[0]}" && "${BASH_VERSINFO[0]}" -ge "3" ]]
+then
+  # This is a bash 3.x feature
+  if [ $BASH_SOURCE == $0 ]
+  then
+    gtre
+  else
+    stre 
+  fi;
+else
+  #echo BASH $BASH_VERSION
+  COMMAND=$(basename $0)
+  if [[ "$COMMAND" == "sethsa" ]]
+  then
+    #this is done as a direct invocation 
+    gtre
+  else
+    #assume this is done through source
+    stre
+  fi
+fi
+

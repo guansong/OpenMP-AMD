@@ -1,0 +1,187 @@
+#!/bin/bash
+
+COMMAND=`basename $0`
+Usage()
+{
+cat << EOF
+Link HSAIL bc files to brig file
+$COMMAND [-v] -o out in ...
+
+  [-v]: verbal mode
+
+$COMMAND $*
+
+EOF
+}
+
+################################################################################
+# Set default
+################################################################################
+if [ ! -z $HSAIL ]; then
+  LNK="${CLANG_OMP_PATH}/llvm-link -suppress-warnings"
+  #LNK="${HSA_HLC_PATH}/llvm-link -suppress-warnings"
+  LNKOPTS="$OMP_LLVMHOME/../openmp/tbuild/lib/libomptarget-amdgcn-hsail.bc $HSA_BUILTIN_PATH/hsa_math.bc $HSA_BUILTIN_PATH/builtins-hsail.opt.bc"
+  OPT=${HSA_HLC_PATH}/opt
+  OPTOPTS="-O2"
+  LLC=${HSA_HLC_PATH}/llc
+  LLCOPTS="-march=hsail64 -filetype=asm"
+  ASM=${HSA_TOOLS_PATH}/HSAILasm
+  ASMOPTS="-assemble -brig -bif32"
+else
+  LNK="${CLANG_OCL_PATH}/llvm-link -suppress-warnings"
+  LNKOPTS="$OMP_LLVMHOME/../openmp/tbuild/lib/libomptarget-amdgcn-hsail.bc $HSA_BUILTIN_PATH/hsa_math.bc $HSA_BUILTIN_PATH/builtins-hsail.opt.bc"
+  LNKOPTS="${LNKOPTS} $HSA_BUILTIN_PATH/hsail-amdgpu-wrapper.ll"
+  OPT=${CLANG_OCL_PATH}/opt
+  OPTOPTS="-O2"
+  LLC=${CLANG_OCL_PATH}/llc
+  LLCOPTS="-mtriple amdgcn--amdhsa -mcpu=kaveri"
+  LLD=${CLANG_OCL_PATH}/lld
+  LLDOPTS="-flavor gnu -shared"
+fi
+
+################################################################################
+# Argument processing
+################################################################################
+argnum=0
+errors=0
+
+while getopts :o:L:vg opt
+do
+    case $opt in
+    o)  OUT=$OPTARG; argnum=`expr $argnum + 2` ;;
+    v)  Verb=-v;   argnum=`expr $argnum + 1` ;;
+    g)  Debug=-g; argnum=`expr $argnum + 1` ;;
+    *)  Usage $*; exit 1 ;;
+    esac
+done
+
+shift $argnum
+
+IN=$*
+################################################################################
+# Promote processing
+################################################################################
+#if [ ! -z $Verb ]; then
+#  >&2 echo "  "${CLANG_OMP_PATH}/opt -load ${CLANG_OMP_PATH}/../lib/LLVMPromote.so -promote-globals -S $IN -o $OUT.p
+#fi
+#${CLANG_OMP_PATH}/opt -load ${CLANG_OMP_PATH}/../lib/LLVMPromote.so -promote-globals -S $IN -o $OUT.p
+#errors=`expr $errors + $?`
+#if [ $errors != 0 ]; then
+#  exit $errors
+#fi
+#
+#if [ ! -z $Verb ]; then
+#  >&2 echo "  "${CLANG_OMP_PATH}/llvm-as $OUT.p -o $OUT.0
+#fi
+#${CLANG_OMP_PATH}/llvm-as $OUT.p -o $OUT.0
+#errors=`expr $errors + $?`
+#if [ $errors != 0 ]; then
+#  exit $errors
+#fi
+
+IN=$OUT.0
+IN=$*
+################################################################################
+# Link processing
+################################################################################
+# add all the library
+if [ ! -z $Verb ]; then
+  >&2 echo "  "${LNK} -o $OUT.1 $IN ${LNKOPTS}
+fi
+${LNK} -o $OUT.1 $IN ${LNKOPTS}
+errors=`expr $errors + $?`
+if [ $errors != 0 ]; then
+  exit $errors
+fi
+
+if [ ! -z $HSAIL ]; then
+  ################################################################################
+  # using HSA compiler
+  # this opt step is needed.
+  if [ ! -z $Verb ]; then
+    >&2 echo "  "${OPT} ${OPTOPTS} -o $OUT.2 $OUT.1
+  fi
+  ${OPT} ${OPTOPTS} -o $OUT.2 $OUT.1
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+
+  # compile.
+  if [ ! -z $Verb ]; then
+    >&2 echo "  "${LLC} ${LLCOPTS} -o $OUT.3 $OUT.2
+  fi
+  ${LLC} ${LLCOPTS} -o $OUT.3 $OUT.2
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+
+  # assemble.
+  if [ ! -z $Verb ]; then
+    >&2 echo "  "${ASM} ${ASMOPTS} -o $OUT $OUT.3
+  fi
+  ${ASM} ${ASMOPTS} -o $OUT $OUT.3
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+else
+  ################################################################################
+  # using LC compiler
+  # this opt step is needed.
+  if [ ! -z $Verb ]; then
+    >&2 echo "  "${OPT} ${OPTOPTS} -o $OUT.2 $OUT.1
+  fi
+  ${OPT} ${OPTOPTS} -o $OUT.2 $OUT.1
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+
+  # compile.
+  if [ ! -z $Verb ]; then
+    >&2 echo ${LLC} ${LLCOPTS}  -filetype=obj -o $OUT.3 $OUT.2
+  fi
+  ${LLC} ${LLCOPTS}  -filetype=obj -o $OUT.3 $OUT.2
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+  # compile to asm.
+  if [ ! -z $Verb ]; then
+    >&2 echo ${LLC} ${LLCOPTS}  -filetype=asm -o $OUT.s $OUT.2
+  fi
+  ${LLC} ${LLCOPTS}  -filetype=asm -o $OUT.s $OUT.2
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+
+  # link.
+  if [ ! -z $Verb ]; then
+    >&2 echo ${LLD} ${LLDOPTS} -o $OUT $OUT.3
+  fi
+  ${LLD} ${LLDOPTS} -o $OUT $OUT.3
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+fi
+
+################################################################################
+# return error code
+exit $errors
+
+
+################################################################################
+# show all pass
+# -debug-pass=Executions
+
+# check code in promotion
+# -debug-only=PromoteGlobals
+
+# save temp
+# -save-temps
+
+

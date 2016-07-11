@@ -1,0 +1,79 @@
+#!/bin/bash
+
+COMMAND=`basename $0`
+Usage()
+{
+cat << EOF
+Compile llvm text file to HSAIL bc file
+$COMMAND [-v] -o out in
+
+  [-v]: verbal mode
+
+$COMMAND $*
+
+EOF
+}
+
+
+################################################################################
+# Argument processing
+################################################################################
+argnum=0
+errors=0
+
+while getopts :o:vg opt
+do
+  case $opt in
+    o)  OUT=$OPTARG; argnum=`expr $argnum + 2` ;;
+    v)  Verb=-v;   argnum=`expr $argnum + 1` ;;
+    g)  Debug=-g; argnum=`expr $argnum + 1` ;;
+    *)  Usage $*; exit 1 ;;
+  esac
+done
+
+shift $argnum
+
+IN=$*
+
+################################################################################
+# Assemble processing
+################################################################################
+if [ ! -z $Verb ]
+then
+  >&2 echo "  "${CLANG_OMP_PATH}/llvm-as -o $OUT.bc $IN
+fi
+${CLANG_OMP_PATH}/llvm-as -o $OUT.bc $IN
+errors=`expr $errors + $?`
+
+################################################################################
+# Promote processing
+################################################################################
+if [ -f ${CLANG_OMP_PATH}/../lib/LLVMPromote.so ]
+then
+  ################################################################################
+  # Promote as .ll file
+  ################################################################################
+  if [ ! -z $Verb ]; then
+    >&2 echo "  "${CLANG_OMP_PATH}/opt -load ${CLANG_OMP_PATH}/../lib/LLVMPromote.so -promote-globals -S $OUT.bc -o $OUT.p.ll
+  fi
+  ${CLANG_OMP_PATH}/opt -load ${CLANG_OMP_PATH}/../lib/LLVMPromote.so -promote-globals -S $OUT.bc -o $OUT.p.ll
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+
+  ################################################################################
+  # After promoting assemble processing
+  ################################################################################
+  if [ ! -z $Verb ]; then
+    >&2 echo "  "${CLANG_OMP_PATH}/llvm-as $OUT.p.ll -o $OUT
+  fi
+  ${CLANG_OMP_PATH}/llvm-as $OUT.p.ll -o $OUT
+  errors=`expr $errors + $?`
+  if [ $errors != 0 ]; then
+    exit $errors
+  fi
+fi
+
+exit $errors
+
