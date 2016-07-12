@@ -35,21 +35,18 @@ shift $argnum
 
 IN=$*
 
-################################################################################
-# Assemble processing
-################################################################################
-if [ ! -z $Verb ]
-then
-  >&2 echo "  "${CLANG_OMP_PATH}/llvm-as -o $OUT.bc $IN
-fi
-${CLANG_OMP_PATH}/llvm-as -o $OUT.bc $IN
-errors=`expr $errors + $?`
-
-################################################################################
-# Promote processing
-################################################################################
 if [ -f ${CLANG_OMP_PATH}/../lib/LLVMPromote.so ]
 then
+  ################################################################################
+  # Assemble processing
+  ################################################################################
+  if [ ! -z $Verb ]
+  then
+    >&2 echo "  "${CLANG_OMP_PATH}/llvm-as -o $OUT.bc $IN
+  fi
+  ${CLANG_OMP_PATH}/llvm-as -o $OUT.bc $IN
+  errors=`expr $errors + $?`
+
   ################################################################################
   # Promote as .ll file
   ################################################################################
@@ -73,6 +70,16 @@ then
   if [ $errors != 0 ]; then
     exit $errors
   fi
+else
+  ################################################################################
+  # Assemble processing without promotion
+  ################################################################################
+  if [ ! -z $Verb ]
+  then
+    >&2 echo "  "${CLANG_OMP_PATH}/llvm-as -o $OUT $IN
+  fi
+  ${CLANG_OMP_PATH}/llvm-as -o $OUT $IN
+  errors=`expr $errors + $?`
 fi
 
 exit $errors
