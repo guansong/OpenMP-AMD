@@ -2,7 +2,7 @@
 <manifest>
   <!-- See http://llvm.org/docs/GettingStarted.html#git-mirror -->
 
-  <remote name="llvm" alias="origin" fetch="ssh://git@github.com/" />
+  <remote name="llvm" alias="origin" fetch="https://github.com/"/>
 
   <default remote="llvm" revision="working" sync-j="4"/>
 

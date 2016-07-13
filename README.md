@@ -6,7 +6,7 @@ This includes the source code to build a prototype supporting OpenMP in LLVM/Cla
 
 Supposing you have a github account, on an AMD ROCM platform, you can do
 
-mkdir workspace; cd workspace; repo init -u git@github.com:guansong/OpenMP-AMD.git; repo sync
+mkdir workspace; cd workspace; repo init -u https://github.com/guansong/OpenMP-AMD.git; repo sync
 
 to get the whole project source in the workspace directory
 
