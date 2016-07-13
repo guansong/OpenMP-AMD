@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- See http://llvm.org/docs/GettingStarted.html#git-mirror -->
+
+  <remote name="llvm" alias="origin" fetch="ssh://git@github.com"/>
+
+  <default remote="llvm" revision="working" sync-j="4"/>
+
+  <project name="guansong/ykt_llvm_trunk.git" path="llvm"/>
+
+  <project name="guansong/ykt_clang_trunk.git" path="llvm/tools/clang"/>
+
+  <project name="guansong/ykt_openmp.git" path="llvm/projects/openmp"/>
+
+</manifest>
+
