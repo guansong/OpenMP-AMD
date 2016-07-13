@@ -42,6 +42,6 @@ or
 
   env MCPU=carrizo clang  -v -save-temps -fopenmp -omptargets=hsail64 -lelf -lffi -lhsa-runtime64 offloading_success.c
 
-And run the exexutable a.out
+And run the executable a.out
 
 

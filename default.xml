@@ -4,13 +4,13 @@
 
   <remote name="llvm" alias="origin" fetch="ssh://git@github.com/" />
 
-  <default remote="llvm" revision="dev" sync-j="4"/>
+  <default remote="llvm" revision="working" sync-j="4"/>
 
-  <project name="RadeonOpenCompute/coral-llvm.git" path="llvm"/>
+  <project name="guansong/ykt_llvm_trunk.git" path="llvm"/>
 
-  <project name="RadeonOpenCompute/coral-clang.git" path="llvm/tools/clang"/>
+  <project name="guansong/ykt_clang_trunk.git" path="llvm/tools/clang"/>
 
-  <project name="RadeonOpenCompute/coral-omprt.git" path="llvm/projects/openmp"/>
+  <project name="guansong/ykt_openmp.git" path="llvm/projects/openmp"/>
 
 </manifest>
 
