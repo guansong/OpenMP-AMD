@@ -17,10 +17,18 @@ EOF
 ################################################################################
 # Set default
 ################################################################################
+
+if [ -f ${CLANG_OMP_PATH}/../lib/libomptarget-amdgcn-hsail.bc ]
+then
+  DEVICE_RUNTIME_PATH=${CLANG_OMP_PATH}/../lib
+else
+  DEVICE_RUNTIME_PATH=${OMP_LLVMHOME}/../openmp/tbuild/lib
+fi
+
 if [ ! -z $HSAIL ]; then
   LNK="${CLANG_OMP_PATH}/llvm-link -suppress-warnings"
   #LNK="${HSA_HLC_PATH}/llvm-link -suppress-warnings"
-  LNKOPTS="$OMP_LLVMHOME/../openmp/tbuild/lib/libomptarget-amdgcn-hsail.bc $HSA_BUILTIN_PATH/hsa_math.bc $HSA_BUILTIN_PATH/builtins-hsail.opt.bc"
+  LNKOPTS="${DEVICE_RUNTIME_PATH}/libomptarget-amdgcn-hsail.bc $HSA_BUILTIN_PATH/hsa_math.bc $HSA_BUILTIN_PATH/builtins-hsail.opt.bc"
   OPT=${HSA_HLC_PATH}/opt
   OPTOPTS="-O2"
   LLC=${HSA_HLC_PATH}/llc
@@ -29,7 +37,7 @@ if [ ! -z $HSAIL ]; then
   ASMOPTS="-assemble -brig -bif32"
 else
   LNK="${CLANG_OCL_PATH}/llvm-link -suppress-warnings"
-  LNKOPTS="$OMP_LLVMHOME/../openmp/tbuild/lib/libomptarget-amdgcn-hsail.bc $HSA_BUILTIN_PATH/hsa_math.bc $HSA_BUILTIN_PATH/builtins-hsail.opt.bc"
+  LNKOPTS="${DEVICE_RUNTIME_PATH}/libomptarget-amdgcn-hsail.bc $HSA_BUILTIN_PATH/hsa_math.bc $HSA_BUILTIN_PATH/builtins-hsail.opt.bc"
   LNKOPTS="${LNKOPTS} $HSA_BUILTIN_PATH/hsail-amdgpu-wrapper.ll"
   OPT=${CLANG_OCL_PATH}/opt
   OPTOPTS="-O2"

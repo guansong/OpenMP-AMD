@@ -84,7 +84,9 @@ stre() {
           then
             export HSA_HLC_PATH=`pwd`/HLC/ebuild/bin
           else
-            if [ -d /opt/rocm/hcc-hsail/hlc/bin ]; then
+            #export HSA_LLVM_PATH=/opt/rocm/hcc-hsail/hlc/bin
+            if [ -d /opt/rocm/hcc-hsail/hlc/bin ]
+            then
               export HSA_HLC_PATH=/opt/rocm/hcc-hsail/hlc/bin
             fi
           fi
@@ -94,7 +96,8 @@ stre() {
           then
             export HSA_TOOLS_PATH=`pwd`/HT/ebuild/HSAILAsm
           else
-            if [ -d /opt/rocm/hcc-hsail/HSAILasm ]; then
+            if [ -d /opt/rocm/hcc-hsail/HSAILasm ]
+            then
               export HSA_TOOLS_PATH=/opt/rocm/hcc-hsail/HSAILasm
             fi
           fi
@@ -105,8 +108,11 @@ stre() {
             export HSA_BUILTIN_PATH=`pwd`/builtin
             export BITCODE_LIBRARY_PATH=`pwd`/builtin:$BITCODE_LIBRARY_PATH
           else
-            export HSA_BUILTIN_PATH=/opt/rocm/hcc-lc/lib
-            export BITCODE_LIBRARY_PATH=/opt/rocm/hcc-lc/lib:$BITCODE_LIBRARY_PATH
+            if [ -d /opt/rocm/hcc-lc/lib ]
+            then
+              export HSA_BUILTIN_PATH=/opt/rocm/hcc-lc/lib
+              export BITCODE_LIBRARY_PATH=/opt/rocm/hcc-lc/lib:$BITCODE_LIBRARY_PATH
+            fi
           fi
 
 
@@ -122,9 +128,12 @@ stre() {
             export LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LIBRARY_PATH
             export LD_LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LD_LIBRARY_PATH
           else
-            export HSA_RUNTIME_PATH=/opt/rocm
-            export LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LIBRARY_PATH
-            export LD_LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LD_LIBRARY_PATH
+            if [ -d /opt/rocm ]
+            then
+              export HSA_RUNTIME_PATH=/opt/rocm
+              export LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LIBRARY_PATH
+              export LD_LIBRARY_PATH=$HSA_RUNTIME_PATH/lib:$LD_LIBRARY_PATH
+            fi
           fi
 
           # ROCR debug runtime
