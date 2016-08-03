@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- See http://llvm.org/docs/GettingStarted.html#git-mirror -->
+
+  <remote name="rocllvm" fetch="https://github.com/"/>
+
+  <default remote="rocllvm" revision="roc-1.2.x" sync-j="4"/>
+
+  <project name="RadeonOpenCompute/llvm.git" path="llvm"/>
+
+  <project name="RadeonOpenCompute/clang.git" path="llvm/tools/clang"/>
+
+  <project name="RadeonOpenCompute/lld.git" path="llvm/tools/lld"/>
+
+</manifest>
+
