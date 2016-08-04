@@ -6,7 +6,8 @@ export CPLUS_INCLUDE_PATH=`pwd`/projects/openmp/runtime/src:$CPLUS_INCLUDE_PATH
 export LIBRARY_PATH=`pwd`/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
-# These two lines are useful when using scripts to debug by setting envrionment variable XTOOL=1
+# These lines are useful when using scripts to debug by setting envrionment variable XTOOL=1
 # You also need to source the sethsa for other variables used by the scripts
 export CLANG_OMP_PATH=`pwd`/bin
 export PATH=`pwd`/../.repo/manifests/setup:$PATH
+source sethsa

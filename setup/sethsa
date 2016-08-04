@@ -31,6 +31,7 @@ gtre() {
   echo "                HSA_CLC_PATH="`echo $HSA_CLC_PATH | cut -d : -f 1`
   echo "                HSA_HLC_PATH="`echo $HSA_HLC_PATH | cut -d : -f 1`
   echo "              HSA_TOOLS_PATH="`echo $HSA_TOOLS_PATH | cut -d : -f 1`
+  echo
   echo "            HSA_BUILTIN_PATH="`echo $HSA_BUILTIN_PATH | cut -d : -f 1`
 #  echo "          HSA_BUILD_INC_PATH="`echo $HSA_BUILD_INC_PATH`
   echo
