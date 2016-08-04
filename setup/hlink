@@ -42,7 +42,11 @@ else
   OPT=${CLANG_OCL_PATH}/opt
   OPTOPTS="-O2"
   LLC=${CLANG_OCL_PATH}/llc
-  LLCOPTS="-mtriple amdgcn--amdhsa -mcpu=kaveri"
+  if [ ! -z $MCPU ]; then
+    LLCOPTS="-mtriple amdgcn--amdhsa -mcpu=$MCPU"
+  else
+    LLCOPTS="-mtriple amdgcn--amdhsa -mcpu=kaveri"
+  fi
   LLD=${CLANG_OCL_PATH}/lld
   LLDOPTS="-flavor gnu -shared"
 fi
