@@ -2,9 +2,9 @@
 <manifest>
   <!-- See http://llvm.org/docs/GettingStarted.html#git-mirror -->
 
-  <remote name="llvm" fetch="ssh://git@github.com"/>
+  <remote name="ompllvm" fetch="ssh://git@github.com"/>
 
-  <default remote="llvm" revision="working" sync-j="4"/>
+  <default remote="ompllvm" revision="working" sync-j="4"/>
 
   <project name="guansong/ykt_llvm_trunk.git" path="llvm"/>
 
