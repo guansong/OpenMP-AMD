@@ -18,11 +18,36 @@ EOF
 # Set default
 ################################################################################
 
+if [ -z ${CLANG_OCL_PATH} ]
+then
+  CLANG_OCL_PATH=/opt/amd/llvm/bin
+fi
+
 if [ -f ${CLANG_OMP_PATH}/../lib/libomptarget-amdgcn-hsail.bc ]
 then
   DEVICE_RUNTIME_PATH=${CLANG_OMP_PATH}/../lib
-else
+fi
+if [ -f ${OMP_LLVMHOME}/xbuild/lib/libomptarget-amdgcn-hsail.bc ]
+then
+  DEVICE_RUNTIME_PATH=${OMP_LLVMHOME}/xbuild/lib
+fi
+if [ -f ${OMP_LLVMHOME}/../openmp/tbuild/lib/libomptarget-amdgcn-hsail.bc ]
+then
   DEVICE_RUNTIME_PATH=${OMP_LLVMHOME}/../openmp/tbuild/lib
+fi
+
+if [ -z $HSA_BUILTIN_PATH ]
+then
+  HSA_BUILTIN_PATH=/opt/rocm/hcc-lc/lib
+fi
+
+if [ -z $HSA_HLC_PATH ]
+then
+  HSA_HLC_PATH=/opt/rocm/hcc-hsail/hlc/bin
+fi
+if [ -z $HSA_TOOLS_PATH ]
+then
+  HSA_TOOLS_PATH=/opt/rocm/hcc-hsail/HSAILasm
 fi
 
 if [ ! -z $HSAIL ]; then
